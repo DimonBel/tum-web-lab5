@@ -6,7 +6,7 @@ import hashlib
 from urllib.parse import urlparse
 
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
-CACHE_TTL = 300  # seconds
+CACHE_TTL = 300  # seconds - when it will delete 
 
 
 def _cache_filename(url: str) -> str:
@@ -32,6 +32,12 @@ def cache_get(url: str):
         os.remove(path)
         return None
     return entry.get("content")
+
+
+def cache_delete(url: str):
+    path = _cache_filename(url)
+    if os.path.exists(path):
+        os.remove(path)
 
 
 def cache_set(url: str, content: str):
