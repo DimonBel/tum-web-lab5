@@ -9,15 +9,23 @@ from renderer import strip_tags
 DDG_URL = "https://html.duckduckgo.com/html/"
 
 
+def _is_bot_challenge(html: str) -> bool:
+    return "anomaly-modal" in html or "bots use DuckDuckGo" in html
+
+
 def cmd_search(term: str):
     query = quote_plus(term)
     url = f"{DDG_URL}?q={query}"
 
     cached = cache_get(url)
     if cached:
-        print("[cache hit]\n")
-        _print_search_results(cached, term)
-        return
+        if _is_bot_challenge(cached):
+            from cache import cache_delete
+            cache_delete(url)
+        else:
+            print("[cache hit]\n")
+            _print_search_results(cached, term)
+            return
 
     try:
         _, _, body = http_request(url, accept="text/html")
@@ -26,6 +34,9 @@ def cmd_search(term: str):
         sys.exit(1)
 
     html = body.decode("utf-8", errors="replace")
+    if _is_bot_challenge(html):
+        print("Error: DuckDuckGo returned a bot-challenge page. Try again in a moment.", file=sys.stderr)
+        sys.exit(1)
     cache_set(url, html)
     _print_search_results(html, term)
 

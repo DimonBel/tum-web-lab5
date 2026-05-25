@@ -72,9 +72,8 @@ Usage:
   go2web -s <search-term>   Search DuckDuckGo and print the top 10 results
   go2web -h                 Show this help message
 
-Features:
-  * HTTPS support via TLS
-  * HTTP redirects (up to 10 hops)
+Features
+  * HTTP redirects (up to 10 hops) - specialI stup it.
   * File-based HTTP cache (TTL 5 min, stored in ./cache/ as JSON files)
   * Content negotiation (HTML rendered as plain text, JSON pretty-printed)
   * Interactive: open search results by number

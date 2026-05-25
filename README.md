@@ -95,9 +95,4 @@ Top 10 results for 'python tutorial':
 ...
 ```
 
-## Extra Points Earned
-
-- +1 Clickable search result links (via Bing)
-- +1 HTTP redirect handling (301/302/303/307/308)
-- +2 HTTP cache mechanism (file-based with TTL)
-- +2 Content negotiation (JSON and HTML rendering)
+![alt text](Lab_5.gif)
