@@ -12,6 +12,9 @@ def http_request(url: str, accept: str = "text/html,application/json", redirects
     if redirects > MAX_REDIRECTS:
         raise RuntimeError("Too many redirects")
 
+    print(f"\n=== STEP {redirects + 1}: Request ===", file=sys.stderr)
+    print(f"  URL: {url}", file=sys.stderr)
+
     parsed = urlparse(url)
     scheme = parsed.scheme.lower()
     host = parsed.hostname
@@ -19,6 +22,9 @@ def http_request(url: str, accept: str = "text/html,application/json", redirects
     path = parsed.path or "/"
     if parsed.query:
         path += "?" + parsed.query
+    print(f"  Host: {host}", file=sys.stderr)
+    print(f"  Port: {port}", file=sys.stderr)
+    print(f"  Path: {path}", file=sys.stderr)
 
     request = (
         f"GET {path} HTTP/1.1\r\n"
@@ -112,16 +118,24 @@ def http_request(url: str, accept: str = "text/html,application/json", redirects
         except zlib.error:
             body_bytes = zlib.decompress(body_bytes, -zlib.MAX_WBITS)
 
+    print(f"\n=== STEP {redirects + 1}: Response ===", file=sys.stderr)
+    print(f"  Status: HTTP {status_code}", file=sys.stderr)
+    for k, v in headers.items():
+        print(f"  {k}: {v[:80]}", file=sys.stderr)
+
     if 300 <= status_code < 400:
         location = headers.get("location", "")
         if location:
             if location.startswith("/"):
-                location = f"{scheme}://{host}{location}"
+                default_port = 443 if scheme == "https" else 80
+                host_with_port = f"{host}:{port}" if port != default_port else host
+                location = f"{scheme}://{host_with_port}{location}"
             elif not location.startswith("http"):
                 location = urljoin(url, location)
-            print(f"  Redirecting to {location}", file=sys.stderr)
+            print(f"\n>>> REDIRECT to: {location}", file=sys.stderr)
             return http_request(location, accept=accept, redirects=redirects + 1)
 
+    print(f"\n=== STEP {redirects + 1}: Body received ({len(body_bytes)} bytes) ===", file=sys.stderr)
     return status_code, headers, body_bytes
 
 

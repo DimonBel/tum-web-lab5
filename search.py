@@ -48,15 +48,23 @@ def _print_search_results(html: str, term: str):
         if not results:
             print("No results found. Try a different search term.")
             return
+        fallback_mode = True
+    else:
+        fallback_mode = False
 
     print(f'Top results for: "{term}"\n{"-"*50}')
     shown = 0
-    for i, (href, title) in enumerate(results):
+    for i, result in enumerate(results):
         if shown >= 10:
             break
+        if fallback_mode:
+            href = result
+            title = ""
+        else:
+            href, title = result
         real_url = _extract_ddg_url(href)
-        clean_title = strip_tags(title).strip()
-        snippet = snippets[i] if i < len(snippets) else ""
+        clean_title = strip_tags(title).strip() if title else real_url
+        snippet = snippets[i] if not fallback_mode and i < len(snippets) else ""
         print(f"\n{shown+1}. {clean_title}")
         print(f"   {real_url}")
         if snippet:
